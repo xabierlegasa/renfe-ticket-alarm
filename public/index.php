@@ -29,8 +29,8 @@ require __DIR__ . '/../vendor/autoload.php';
 // full path `vendor/slim/slim/slim/App.php`. Composer autoload
 // has already done that for us up there.
 use Slim\App;
-
-
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
 
 
 
@@ -39,14 +39,25 @@ use Slim\App;
 // You can name this variable anything
 $app = new App();
 
+$container = $app->getContainer();
+$container['logger'] = function($c) {
+    $logger = new \Monolog\Logger('my_logger');
+    $file_handler = new \Monolog\Handler\StreamHandler("../logs/app.log");
+    $logger->pushHandler($file_handler);
+    return $logger;
+};
 
 
 // We add our first route which will respond to the home page
 // request, usually located at `/` or root.
-$app->get('/', function($request, $response, $args){
+$app->get('/', function(Request $request, Response $response, $args){
 
     // Do anything here, like:
     echo "Welcome to Slim Town!";
+
+    $logger = $this->get('logger');
+
+    $logger->addInfo("Something interesting happened");
 
     // Then return an HTTP response
     return $response;
