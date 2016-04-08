@@ -48,20 +48,35 @@ $container['logger'] = function($c) {
 };
 
 
+$container['view'] = new \Slim\Views\PhpRenderer("../templates/");
+
+
+
+
 // We add our first route which will respond to the home page
 // request, usually located at `/` or root.
 $app->get('/', function(Request $request, Response $response, $args){
 
-    // Do anything here, like:
-    echo "Welcome to Slim Town!";
-
     $logger = $this->get('logger');
-
     $logger->addInfo("Something interesting happened");
 
-    // Then return an HTTP response
+    $response = $this->view->render($response, "main.phtml", ["foo" => 'bar']);
     return $response;
 });
+
+$app->post('/notifications', function(Request $request, Response $response, $args) {
+
+    $from = $request->getParam('from');
+    $to = $request->getParam('to');
+
+    var_dump($from);
+    var_dump($to);
+
+    die;
+
+});
+
+
 
 
 // Once we have the instance of Slim\App we can ask it to start running
