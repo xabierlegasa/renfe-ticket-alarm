@@ -48,18 +48,7 @@ $container['logger'] = function($c) {
 };
 
 
-// Register component on container
-$container['view'] = function ($container) {
-    $view = new \Slim\Views\Twig('../app/templates', [
-        'cache' => '../app/cache'
-    ]);
-    $view->addExtension(new \Slim\Views\TwigExtension(
-                            $container['router'],
-                            $container['request']->getUri()
-                        ));
-
-    return $view;
-};
+$container['view'] = new \Slim\Views\PhpRenderer("../app/templates/");
 
 
 // We add our first route which will respond to the home page
@@ -69,7 +58,7 @@ $app->get('/', function(Request $request, Response $response, $args){
     $logger = $this->get('logger');
     $logger->addInfo("Something interesting happened");
 
-    $response = $this->view->render($response, "main.html", ["foo" => 'bar']);
+    $response = $this->view->render($response, "main.phtml", ["foo" => 'bar']);
     return $response;
 });
 
