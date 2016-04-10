@@ -48,9 +48,18 @@ $container['logger'] = function($c) {
 };
 
 
-$container['view'] = new \Slim\Views\PhpRenderer("../templates/");
+// Register component on container
+$container['view'] = function ($container) {
+    $view = new \Slim\Views\Twig('../app/templates', [
+        'cache' => '../app/cache'
+    ]);
+    $view->addExtension(new \Slim\Views\TwigExtension(
+                            $container['router'],
+                            $container['request']->getUri()
+                        ));
 
-
+    return $view;
+};
 
 
 // We add our first route which will respond to the home page
@@ -60,7 +69,7 @@ $app->get('/', function(Request $request, Response $response, $args){
     $logger = $this->get('logger');
     $logger->addInfo("Something interesting happened");
 
-    $response = $this->view->render($response, "main.phtml", ["foo" => 'bar']);
+    $response = $this->view->render($response, "main.html", ["foo" => 'bar']);
     return $response;
 });
 
@@ -68,9 +77,24 @@ $app->post('/notifications', function(Request $request, Response $response, $arg
 
     $from = $request->getParam('from');
     $to = $request->getParam('to');
+    
+    $output = trim(
+        shell_exec(
+            'casperjs ../src/casperjs/renfe.js --from="'
+            . $from
+            . '" --to="'
+            . $to
+            . '" --date="11/06/2016"'
+        )
+    );
 
-    var_dump($from);
-    var_dump($to);
+    $response = json_decode($output, true);
+    if($response === null || $response['status'] !== 'ok') {
+        // $ob is null because the json cannot be decoded
+        // SHOW ERROR PAGE
+    }
+
+    var_dump($output);die;
 
     die;
 
