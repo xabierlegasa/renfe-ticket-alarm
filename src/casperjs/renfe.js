@@ -24,18 +24,18 @@ casper.start('http://www.renfe.com/', function() {
 
     casper.sendKeys("form#datosBusqueda input#IdOrigen", from, {keepFocus: true});
     casper.sendKeys('form#datosBusqueda input#IdOrigen', casper.page.event.key.Enter , {keepFocus: true});
-    this.captureSelector('../public/images/test_1_from.png', 'body');
+    this.captureSelector('../app/pics/test_1_from.png', 'body');
     casper.sendKeys("form#datosBusqueda input#IdDestino", to, {keepFocus: true});
 
 
     casper.sendKeys('form#datosBusqueda input#IdDestino', casper.page.event.key.Enter , {keepFocus: true});
-    this.captureSelector('../public/images/test_2_to.png', 'body');
+    this.captureSelector('../app/pics/test_2_to.png', 'body');
     casper.fillSelectors('form#datosBusqueda', {
         'input[name="__fechaIdaVisual"]':    dateToLookFor,
     }, false);
 
 
-    this.captureSelector('../public/images/test_3_date.png', 'body');
+    this.captureSelector('../app/pics/test_3_date.png', 'body');
     
     casper.click("button.btn")
 
@@ -48,7 +48,7 @@ casper.then(function(){
 
 
 casper.then(function() {
-    this.captureSelector('../public/images/test_4_fin.png', 'body');
+    this.captureSelector('../app/pics/test_4_fin.png', 'body');
 
     var date = this.getElementAttribute('input[id="fechaSeleccionada0"]', 'value');
     response.date = date;
@@ -58,7 +58,7 @@ casper.then(function() {
         response.isTravelDateCorrect = false;
     }
 
-
+    
     if (this.exists('button[title="Comprar"]')) {
         response.thereAreTrains = true;
     } else {
@@ -67,8 +67,6 @@ casper.then(function() {
     response.status = 'ok';
 
     casper.echo(JSON.stringify(response));
-
-    //casper.echo(JSON.stringify(response));
 });
 
 

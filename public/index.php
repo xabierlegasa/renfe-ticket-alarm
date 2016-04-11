@@ -42,7 +42,7 @@ $app = new App();
 $container = $app->getContainer();
 $container['logger'] = function($c) {
     $logger = new \Monolog\Logger('my_logger');
-    $file_handler = new \Monolog\Handler\StreamHandler("../logs/app.log");
+    $file_handler = new \Monolog\Handler\StreamHandler("../app/logs/app.log");
     $logger->pushHandler($file_handler);
     return $logger;
 };
@@ -62,31 +62,45 @@ $app->get('/', function(Request $request, Response $response, $args){
     return $response;
 });
 
-$app->post('/notifications', function(Request $request, Response $response, $args) {
+$app->post('/alerts', function(Request $request, Response $response, $args) {
 
     $from = $request->getParam('from');
     $to = $request->getParam('to');
-    
+    $date = $request->getParam('date');
+
+
+
+
     $output = trim(
         shell_exec(
             'casperjs ../src/casperjs/renfe.js --from="'
             . $from
             . '" --to="'
             . $to
-            . '" --date="11/06/2016"'
+            . '" --date="'
+            . $date
+            . '"'
         )
     );
 
-    $response = json_decode($output, true);
-    if($response === null || $response['status'] !== 'ok') {
-        // $ob is null because the json cannot be decoded
-        // SHOW ERROR PAGE
-    }
+    $result = json_decode($output, true);
+    /*
+     * Response example:
+     *
+//    $result = [
+//        'status' => 'ok',
+//        'from' => 'Barcelona',
+//        'to' => 'Pamplona',
+//        'date' => '11/06/2016',
+//        'isTravelDateCorrect' => true,
+//        'thereAreTrains' => false
+//    ];
+     *
+     */
+    var_dump($result);
 
-    var_dump($output);die;
-
-    die;
-
+    $response = $this->view->render($response, "create_alert_result.phtml", ['result' => $result]);
+    return $response;
 });
 
 
